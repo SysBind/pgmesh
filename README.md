@@ -2,7 +2,7 @@
 
 ## Upgrade Major Postgres Version or Switch Architecure / Deployment
 
-Can be curried out for each database of the cluster seperatly
+Can be carried out for each database of the cluster seperatly
 
 Ref: https://www.2ndquadrant.com/en/blog/upgrading-to-postgresql-11-with-logical-replication/
 
