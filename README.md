@@ -2,12 +2,18 @@
 
 ## Upgrade Major Postgres Version or Switch Architecure / Deployment
 
-### States
+Can be curried out for each database of the cluster seperatly
+
+Ref: https://www.2ndquadrant.com/en/blog/upgrading-to-postgresql-11-with-logical-replication/
+
+### States - Repeated for each database
 - Import basic schema
 - Initiate PubSub
 - Monitor replication state
 - Enter Maintnence mode - if applicable
+- Fixup Sequences
 - Redirect traffic to new cluster
 - Finalize PubSub
-- Exit Maintnence - if applicable - only on new cluster
-- Take down or make Read-Only old cluster
+- Exit Maintnence - if applicable - only on new database
+- Take down or make Read-Only old database
+
