@@ -6,7 +6,7 @@ Can be carried out for each database of the cluster seperatly
 
 Ref: https://www.2ndquadrant.com/en/blog/upgrading-to-postgresql-11-with-logical-replication/
 
-### States - Repeated for each database
+### Plan - Repeated for each database
 - Import basic schema
 - Initiate PubSub
 - Monitor replication state
