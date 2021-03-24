@@ -15,6 +15,7 @@ stdout "creating docker network"
 docker network create pgmesh-test
 
 DOCKER_RUN="docker run -d --network=pgmesh-test"
+DOCKER_EXC="docker exec"
 PG_ENV=" -e POSTGRES_PASSWORD=q1w2e3r4 -e POSTGRES_DB=moodle"
 
 # Postgres (prev version)
@@ -27,3 +28,6 @@ docker build --quiet . -f Dockerfile -t pgmesh-test-moodle || fail "failed build
 
 stdout "running moodle test image"
 $DOCKER_RUN -p 80:80 --name pgmesh-test-moodle pgmesh-test-moodle  2>&1 > /dev/null || fail "failed running moodle test image"
+
+stdout "running moodle database install"
+$DOCKER_EXC pgmesh-test-moodle php admin/cli/install_database.php --agree-license --adminpass=q1w2e3r4
