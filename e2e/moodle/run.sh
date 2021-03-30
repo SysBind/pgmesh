@@ -17,7 +17,7 @@ docker network create pgmesh-test
 DOCKER_RUN="docker run -d --network=pgmesh-test"
 DOCKER_EXC="docker exec"
 PG_ENV=" -e POSTGRES_PASSWORD=q1w2e3r4 -e POSTGRES_DB=moodle"
-PG_CLIENT_ENV="-e PGHOST=pgmesh-test-pg${FROM_VERSION} -e PGUSER=postgres -e PGPASSWORD=q1w2e3r4 -e PGDATABASE=moodle"
+PG_CLIENT_ENV="-e PGHOST=pgmesh-test-pg${FROM_VERSION} -e PGUSER=postgres -e PGPASSWORD=q1w2e3r4 -e PGDATABASE=moodle -e PGNEWHOST=pgmesh-test-pg${TO_VERSION}"
 
 # Postgres (prev version)
 stdout "running postgres $FROM_VERSION"
@@ -47,3 +47,16 @@ stdout "completing admin registration"
 $DOCKER_EXC pgmesh-test-moodle psql -c "UPDATE mdl_user SET firstname = 'Admin',lastname = 'User',email = 'test@user.com',maildisplay = '1',country = 'IL',timezone = '99' WHERE id=2"
 $DOCKER_EXC pgmesh-test-moodle psql -c "INSERT INTO mdl_user_preferences (name,value,userid) VALUES('email_bounce_count', '1',2)"
 $DOCKER_EXC pgmesh-test-moodle psql -c "INSERT INTO mdl_user_preferences (name,value,userid) VALUES('email_send_count', '1', 2)"
+
+stdout "generating test data"
+$DOCKER_EXC pgmesh-test-moodle php admin/tool/generator/cli/maketestsite.php --bypasscheck --size XS
+
+
+# Postgres (new version)
+stdout "running postgres $TO_VERSION"
+$DOCKER_RUN --name pgmesh-test-pg${TO_VERSION} ${PG_ENV} postgres:${TO_VERSION} || fail "failed running postgres:$TO_VERSION"
+
+while ! docker logs pgmesh-test-pg${TO_VERSION} | grep "database system is ready to accept connections"; do    
+    stdout "waitin for postgres"
+    sleep 2s
+done

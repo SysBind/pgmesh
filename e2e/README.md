@@ -1,3 +1,3 @@
 # End 2 End Tests
 
-Currently pgmesh focusing on the Upgrade/Migrate case.
+Currently pgmesh is focused on the Upgrade/Migrate case.
