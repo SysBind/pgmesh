@@ -32,17 +32,12 @@ func DumpSchema(conn postgres.ConnConfig, section DumpSection) (<-chan string, <
 	outchan := make(chan string)
 	errchan := make(chan string)
 
-	defer close(outchan)
-	defer close(errchan)
-
 	fmt.Println("pg_dump",
-		"--schema-only",
 		fmt.Sprintf("--section=%s", section),
 		"-U", conn.User,
 		conn.Database)
 
 	cmd := exec.Command("pg_dump",
-		"--schema-only",
 		fmt.Sprintf("--section=%s", section),
 		"-U", conn.User,
 		conn.Database)
@@ -82,17 +77,17 @@ func run(cmd *exec.Cmd, outchan chan<- string, errchan chan<- string) (err error
 	}
 
 	go func() {
+		defer close(outchan)
 		scanner := bufio.NewScanner(stdout)
 		for scanner.Scan() {
 			outchan <- scanner.Text()
 		}
-		close(outchan)
 	}()
 
 	go func() {
+		defer close(errchan)
 		stderr_str, _ := io.ReadAll(stderr)
 		errchan <- string(stderr_str)
-		close(errchan)
 		cmd.Wait()
 	}()
 
