@@ -2,18 +2,52 @@ package util
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"os/exec"
 
 	"github.com/sysbind/pgmesh/postgres"
 )
 
-func Dump(conn postgres.ConnConfig) (<-chan string, <-chan string, error) {
+type DumpSection int
+
+const (
+	PreData DumpSection = iota
+	PostData
+)
+
+func (sec DumpSection) String() string {
+	switch sec {
+	case PreData:
+		return "pre-data"
+	case PostData:
+		return "post-data"
+	}
+	return fmt.Sprintf("no such DumpSection %d", sec)
+}
+
+// DumpSchema will execute pg_dump --schema-only --section=[pre-data,post-data]
+// returning chnnels for stdout & stderr
+func DumpSchema(conn postgres.ConnConfig, section DumpSection) (<-chan string, <-chan string, error) {
 	outchan := make(chan string)
 	errchan := make(chan string)
 
-	cmd := exec.Command("pg_dump", "-U", conn.User, conn.Database)
+	defer close(outchan)
+	defer close(errchan)
 
+	fmt.Println("pg_dump",
+		"--schema-only",
+		fmt.Sprintf("--section=%s", section),
+		"-U", conn.User,
+		conn.Database)
+
+	cmd := exec.Command("pg_dump",
+		"--schema-only",
+		fmt.Sprintf("--section=%s", section),
+		"-U", conn.User,
+		conn.Database)
+
+	fmt.Println("Running pg_dump..")
 	err := run(cmd, outchan, errchan)
 	if err != nil {
 		return nil, nil, err
@@ -22,6 +56,8 @@ func Dump(conn postgres.ConnConfig) (<-chan string, <-chan string, error) {
 	return outchan, errchan, nil
 }
 
+// DumpGlobals will execute pg_dumpall --globals-only
+// returning chnnels for stdout & stderr
 func DumpGlobals(conn postgres.ConnConfig) (<-chan string, <-chan string, error) {
 	outchan := make(chan string)
 	errchan := make(chan string)
