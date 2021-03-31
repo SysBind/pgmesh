@@ -1,8 +1,8 @@
 package postgres
 
 type ConnConfig struct {
-	dbhost string
-	dbname string
-	dbuser string
-	dbpass string
+	Host     string
+	Database string
+	User     string
+	Pass     string
 }

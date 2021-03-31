@@ -1,17 +1,17 @@
 package util
 
 import (
-	"io"
+	"os/exec"
 
 	"github.com/sysbind/pgmesh/postgres"
 )
 
-func dump(conn postgres.ConnConfig) (stdout io.ReadCloser, err error) {
-	cmd := exec.Command("pg_dump", "moodle")
-	stdout, err = exec.StdoutPipe()
-	if err != nil {
-		return
-	}
-	err = cmd.Start()
+func Dump(conn postgres.ConnConfig) (cmd *exec.Cmd) {
+	cmd = exec.Command("pg_dump", "-U", conn.User, conn.Database)
+	return
+}
+
+func DumpGlobals(conn postgres.ConnConfig) (cmd *exec.Cmd) {
+	cmd = exec.Command("pg_dumpall", "--globals-only", "-U", conn.User)
 	return
 }
