@@ -86,6 +86,9 @@ func CopyPrimeKeys(ctx context.Context, src, dest postgres.ConnConfig) error {
 	}
 
 	for line := range stderr {
+		if line == "" {
+			continue
+		}
 		return errors.New(line)
 	}
 

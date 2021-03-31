@@ -2,12 +2,12 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"github.com/spf13/cobra"
 	"github.com/sysbind/pgmesh/postgres"
 	pgcopy "github.com/sysbind/pgmesh/postgres/copy"
+	pglogical "github.com/sysbind/pgmesh/postgres/logical"
 )
 
 func init() {
@@ -18,8 +18,6 @@ var pubsubCmd = &cobra.Command{
 	Use:   "pubsub",
 	Short: "Create logical replication between two databases",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Starting PubSub")
-
 		src := postgres.ConnConfig{
 			Host:     "localhost",
 			Database: "moodle",
@@ -34,11 +32,12 @@ var pubsubCmd = &cobra.Command{
 
 		ctx := context.Background()
 		if err := pgcopy.CopySchema(ctx, src, dest); err != nil {
-			fmt.Println("error from CopySchema")
 			log.Fatal(err)
 		}
-		fmt.Println("Calling CopyPrimeKeys")
 		if err := pgcopy.CopyPrimeKeys(ctx, src, dest); err != nil {
+			log.Fatal(err)
+		}
+		if err := pglogical.PubSub(ctx, src, dest); err != nil {
 			log.Fatal(err)
 		}
 	},

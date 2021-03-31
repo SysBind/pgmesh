@@ -32,17 +32,11 @@ func DumpSchema(conn postgres.ConnConfig, section DumpSection) (<-chan string, <
 	outchan := make(chan string)
 	errchan := make(chan string)
 
-	fmt.Println("pg_dump",
-		fmt.Sprintf("--section=%s", section),
-		"-U", conn.User,
-		conn.Database)
-
 	cmd := exec.Command("pg_dump",
 		fmt.Sprintf("--section=%s", section),
 		"-U", conn.User,
 		conn.Database)
 
-	fmt.Println("Running pg_dump..")
 	err := run(cmd, outchan, errchan)
 	if err != nil {
 		return nil, nil, err
