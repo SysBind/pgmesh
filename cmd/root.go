@@ -14,7 +14,7 @@ var rootCmd = &cobra.Command{
                 Long version
                 Complete documentation is available at https://gitub.com/sysbind/pgmesh`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("no command given")
+		fmt.Println("pgmesh: no command given (try pgmesh --help)")
 	},
 }
 
