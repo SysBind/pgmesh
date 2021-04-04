@@ -4,7 +4,10 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"io/ioutil"
+	"log"
 	"os/exec"
+	"os/user"
 
 	"github.com/sysbind/pgmesh/postgres"
 )
@@ -29,6 +32,7 @@ func (sec DumpSection) String() string {
 // DumpSchema will execute pg_dump --schema-only --section=[pre-data,post-data]
 // returning chnnels for stdout & stderr
 func DumpSchema(conn postgres.ConnConfig, section DumpSection) (<-chan string, <-chan string, error) {
+	pgpass(conn)
 	outchan := make(chan string)
 	errchan := make(chan string)
 
@@ -49,6 +53,7 @@ func DumpSchema(conn postgres.ConnConfig, section DumpSection) (<-chan string, <
 // DumpGlobals will execute pg_dumpall --globals-only
 // returning chnnels for stdout & stderr
 func DumpGlobals(conn postgres.ConnConfig) (<-chan string, <-chan string, error) {
+	pgpass(conn)
 	outchan := make(chan string)
 	errchan := make(chan string)
 
@@ -87,4 +92,24 @@ func run(cmd *exec.Cmd, outchan chan<- string, errchan chan<- string) (err error
 	}()
 
 	return
+}
+
+// write $HOME/.pgpass for passwordless operation
+func pgpass(conn postgres.ConnConfig) {
+	usr, err := user.Current()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	str := fmt.Sprintf("%s:%s:%s:%s:%s",
+		conn.Host,
+		"5432",
+		conn.Database,
+		conn.User,
+		conn.Pass)
+
+	err = ioutil.WriteFile(usr.HomeDir+"/.pgpass", []byte(str), 0600)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
