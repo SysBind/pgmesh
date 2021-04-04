@@ -24,7 +24,9 @@ func PubSub(ctx context.Context, src, dest postgres.ConnConfig) error {
 		return err
 	}
 
-	subscribe_cmd := fmt.Sprintf("CREATE SUBSCRIPTION s_upgrade CONNECTION 'host=%s port=5432 dbname=%s' PUBLICATION p_upgrade;", src.Host, src.Database)
+	subscribe_cmd := fmt.Sprintf(
+		"CREATE SUBSCRIPTION s_upgrade CONNECTION 'host=%s port=5432 dbname=%s user=%s password=%s' PUBLICATION p_upgrade;",
+		src.Host, src.Database, src.User, src.Pass)
 	tag, err = target_db.Exec(ctx, subscribe_cmd)
 	if err != nil {
 		return err
