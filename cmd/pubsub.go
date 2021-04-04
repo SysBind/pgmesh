@@ -10,7 +10,22 @@ import (
 	pglogical "github.com/sysbind/pgmesh/postgres/logical"
 )
 
+var (
+	srcHost  string
+	srcDB    string
+	destHost string
+	destDB   string
+)
+
 func init() {
+	pubsubCmd.Flags().StringVarP(&srcHost, "source-host", "", "", "Source database host (required)")
+	pubsubCmd.MarkFlagRequired("source-host")
+	pubsubCmd.Flags().StringVarP(&srcDB, "source-database", "", "", "Source database name (required)")
+	pubsubCmd.MarkFlagRequired("source-database")
+	pubsubCmd.Flags().StringVarP(&destHost, "dest-host", "", "", "Destination database host (required)")
+	pubsubCmd.MarkFlagRequired("dest-host")
+	pubsubCmd.Flags().StringVarP(&destDB, "dest-database", "", "", "Destination database name (required)")
+	pubsubCmd.MarkFlagRequired("dest-database")
 	rootCmd.AddCommand(pubsubCmd)
 }
 
@@ -19,14 +34,14 @@ var pubsubCmd = &cobra.Command{
 	Short: "Create logical replication between two databases",
 	Run: func(cmd *cobra.Command, args []string) {
 		src := postgres.ConnConfig{
-			Host:     "localhost",
-			Database: "moodle",
+			Host:     srcHost,
+			Database: srcDB,
 			User:     "postgres",
 			Pass:     "q1w2e3r4"}
 
 		dest := postgres.ConnConfig{
-			Host:     "localhost",
-			Database: "moodle2",
+			Host:     destHost,
+			Database: destDB,
 			User:     "postgres",
 			Pass:     "q1w2e3r4"}
 

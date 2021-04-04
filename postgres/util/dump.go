@@ -35,6 +35,7 @@ func DumpSchema(conn postgres.ConnConfig, section DumpSection) (<-chan string, <
 	cmd := exec.Command("pg_dump",
 		fmt.Sprintf("--section=%s", section),
 		"-U", conn.User,
+		"--host", conn.Host,
 		conn.Database)
 
 	err := run(cmd, outchan, errchan)

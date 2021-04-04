@@ -24,4 +24,4 @@ RUN apt update \
 
 COPY pgmesh /usr/bin/pgmesh
 
-# ENTRYPOINT ["/usr/bin/pgmesh"]
+ENTRYPOINT ["/usr/bin/pgmesh"]

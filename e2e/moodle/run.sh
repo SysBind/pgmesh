@@ -60,3 +60,7 @@ while ! docker logs pgmesh-test-pg${TO_VERSION} | grep "database system is ready
     stdout "waitin for postgres"
     sleep 2s
 done
+
+
+# Run pgmesh to establish logical replication from old to new Postgres
+$DOCKER_RUN --name pgmesh-test-pgmesh pgmesh pubsub --source-host=pgmesh-test-pg${FROM_VERSION} --dest-host=pgmesh-test-pg${TO_VERSION} --source-database=moodle --dest-database=moodle || fail "failed running pgmesh pubsub"

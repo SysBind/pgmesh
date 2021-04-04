@@ -1,7 +1,7 @@
 pgmesh:
 	CGO_ENABLED=0 go build
 
-e2e: e2e_clean docker_image
+e2e: clean docker_image
 	@cd e2e/moodle && ./run.sh
 
 docker_image: pgmesh Dockerfile
@@ -9,3 +9,6 @@ docker_image: pgmesh Dockerfile
 
 e2e_clean:
 	@cd e2e/moodle && ./cleanup.sh
+
+clean: e2e_clean
+	rm -vf pgmesh
