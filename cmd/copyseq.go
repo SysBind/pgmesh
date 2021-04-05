@@ -1,6 +1,14 @@
 package cmd
 
-import "github.com/spf13/cobra"
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/spf13/cobra"
+	"github.com/sysbind/pgmesh/postgres"
+	pgcopy "github.com/sysbind/pgmesh/postgres/copy"
+)
 
 func init() {
 	copyseqCmd.Flags().StringVarP(&srcHost, "source-host", "", "", "Source database host (required)")
@@ -19,5 +27,23 @@ var copyseqCmd = &cobra.Command{
 	Use:   "copyseq",
 	Short: "Copies all sequence values from source to dest with optional slack",
 	Run: func(cmd *cobra.Command, args []string) {
+		src := postgres.ConnConfig{
+			Host:     srcHost,
+			Database: srcDB,
+			User:     "postgres",
+			Pass:     "q1w2e3r4"}
+
+		dest := postgres.ConnConfig{
+			Host:     destHost,
+			Database: destDB,
+			User:     "postgres",
+			Pass:     "q1w2e3r4"}
+
+		ctx := context.Background()
+
+		fmt.Println("Calling CopySequences..")
+		if err := pgcopy.CopySequences(ctx, src, dest, slack); err != nil {
+			log.Fatal(err)
+		}
 	},
 }

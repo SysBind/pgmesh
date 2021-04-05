@@ -2,13 +2,19 @@ package copy
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/sysbind/pgmesh/postgres"
 )
 
-// CopySchema copies basic schema from src to dest (pg_dump --section=pre-data)
-func CopySequences(ctx context.Context, src, dest postgres.ConnConfig) error {
+// CopySequences copies all sequence values from source to target (as before migrating to new)
+func CopySequences(ctx context.Context, src, dest postgres.ConnConfig, slack int) error {
 	src_db, err := postgres.Connect(ctx, src)
+	if err != nil {
+		return err
+	}
+
+	dest_db, err := postgres.Connect(ctx, dest)
 	if err != nil {
 		return err
 	}
@@ -27,6 +33,13 @@ func CopySequences(ctx context.Context, src, dest postgres.ConnConfig) error {
 			&lastval); err != nil {
 			return err
 		}
+
+		tag, err := dest_db.Exec(ctx, fmt.Sprintf("SELECT setval ('%s.%s', %d)",
+			schema, sequence, lastval+slack))
+		if err != nil {
+			return err
+		}
+		fmt.Println(tag)
 	}
 	// Check for errors from iterating over rows.
 	err = rows.Err()

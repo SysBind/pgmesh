@@ -15,12 +15,7 @@ RUN apt update \
 	&& curl --silent https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
     && apt update \
 	&& apt install --no-install-recommends -y  \
-        postgresql-client-13  \
-        postgresql-client-12  \
-        postgresql-client-11  \
-        postgresql-client-10  \
-        postgresql-client-9.6 \
-	postgresql-client-9.5
+        postgresql-client-13
 
 COPY pgmesh /usr/bin/pgmesh
 

@@ -66,3 +66,7 @@ $DOCKER_RUN --name pgmesh-test-pgmesh pgmesh pubsub --source-host=pgmesh-test-pg
 stdout "generating test data"
 $DOCKER_EXC pgmesh-test-moodle php admin/tool/generator/cli/maketestsite.php --bypasscheck --size XS
 
+
+# Re-Run pgmesh to copy over current sequence values
+$DOCKER_RUN --name pgmesh-test-pgmesh2 pgmesh copyseq --source-host=pgmesh-test-pg${FROM_VERSION} --dest-host=pgmesh-test-pg${TO_VERSION} --source-database=moodle --dest-database=moodle || fail "failed running pgmesh copyseq"
+
