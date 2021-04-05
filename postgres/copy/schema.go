@@ -94,3 +94,46 @@ func CopyPrimeKeys(ctx context.Context, src, dest postgres.ConnConfig) error {
 
 	return nil
 }
+
+// CopyContraints copies all other constraints (non primary-keys)
+// (pg_dump --section=post-data, than filter out primary keys)
+func CopyConstraints(ctx context.Context, src, dest postgres.ConnConfig) error {
+	stdout, stderr, err := pgutil.DumpSchema(src, pgutil.PostData)
+	if err != nil {
+		return err
+	}
+	target_db, err := postgres.Connect(ctx, dest)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("CopyConstraints: Target DB contacted at %s/%s\n",
+		dest.Host,
+		dest.Database)
+	var statement string = ""
+	for line := range stdout {
+		if line == "" || strings.HasPrefix(line, "--") {
+			continue
+		}
+		statement += line
+		if statement[len(statement)-1] == ';' {
+			if strings.Contains(statement, "PRIMARY KEY") {
+				statement = ""
+				continue
+			}
+			_, err := target_db.Exec(ctx, statement)
+			if err != nil {
+				log.Fatal(err)
+			}
+			statement = ""
+		}
+	}
+
+	for line := range stderr {
+		if line == "" {
+			continue
+		}
+		return errors.New(line)
+	}
+
+	return nil
+}

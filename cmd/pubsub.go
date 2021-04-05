@@ -55,5 +55,8 @@ var pubsubCmd = &cobra.Command{
 		if err := pglogical.PubSub(ctx, src, dest); err != nil {
 			log.Fatal(err)
 		}
+		if err := pgcopy.CopyConstraints(ctx, src, dest); err != nil {
+			log.Fatal(err)
+		}
 	},
 }
