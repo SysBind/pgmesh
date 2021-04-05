@@ -10,13 +10,6 @@ import (
 	pglogical "github.com/sysbind/pgmesh/postgres/logical"
 )
 
-var (
-	srcHost  string
-	srcDB    string
-	destHost string
-	destDB   string
-)
-
 func init() {
 	pubsubCmd.Flags().StringVarP(&srcHost, "source-host", "", "", "Source database host (required)")
 	pubsubCmd.MarkFlagRequired("source-host")

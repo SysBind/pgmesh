@@ -7,6 +7,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	srcHost  string
+	srcDB    string
+	destHost string
+	destDB   string
+	slack    int // number to add to all copied sequence values
+)
+
 var rootCmd = &cobra.Command{
 	Use:   "pgmesh",
 	Short: "pgmesh automates common postgres logical replication use-cases",

@@ -1,4 +1,4 @@
-package postgres
+package copy
 
 import (
 	"context"
