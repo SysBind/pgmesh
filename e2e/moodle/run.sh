@@ -21,7 +21,7 @@ PG_CLIENT_ENV="-e PGHOST=pgmesh-test-pg${FROM_VERSION} -e PGUSER=postgres -e PGP
 
 # Postgres (prev version)
 stdout "running postgres $FROM_VERSION"
-$DOCKER_RUN -v "$PWD/postgresql.conf":/etc/postgresql/postgresql.conf --name pgmesh-test-pg${FROM_VERSION} ${PG_ENV} postgres:${FROM_VERSION} || fail "failed running postgres:$FROM_VERSION"
+$DOCKER_RUN  --name pgmesh-test-pg${FROM_VERSION} ${PG_ENV} -v "$PWD/postgresql.conf":/etc/postgresql/postgresql.conf postgres:${FROM_VERSION} -c 'config_file=/etc/postgresql/postgresql.conf' || fail "failed running postgres:$FROM_VERSION"
 
 while ! docker logs pgmesh-test-pg${FROM_VERSION} | grep "database system is ready to accept connections"; do    
     stdout "waitin for postgres"
