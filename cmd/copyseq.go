@@ -10,6 +10,8 @@ import (
 	pgcopy "github.com/sysbind/pgmesh/postgres/copy"
 )
 
+var slack int // number to add to all copied sequence values
+
 func init() {
 	copyseqCmd.Flags().StringVarP(&srcHost, "source-host", "", "", "Source database host (required)")
 	copyseqCmd.MarkFlagRequired("source-host")

@@ -10,6 +10,8 @@ import (
 	pglogical "github.com/sysbind/pgmesh/postgres/logical"
 )
 
+var detach bool
+
 func init() {
 	pubsubCmd.Flags().StringVarP(&srcHost, "source-host", "", "", "Source database host (required)")
 	pubsubCmd.MarkFlagRequired("source-host")
@@ -19,12 +21,13 @@ func init() {
 	pubsubCmd.MarkFlagRequired("dest-host")
 	pubsubCmd.Flags().StringVarP(&destDB, "dest-database", "", "", "Destination database name (required)")
 	pubsubCmd.MarkFlagRequired("dest-database")
+	pubsubCmd.Flags().BoolVarP(&detach, "detach", "", false, "Detach previously etstablished logical replication")
 	rootCmd.AddCommand(pubsubCmd)
 }
 
 var pubsubCmd = &cobra.Command{
 	Use:   "pubsub",
-	Short: "Create logical replication between two databases",
+	Short: "Create / Detach logical replication between two databases",
 	Run: func(cmd *cobra.Command, args []string) {
 		src := postgres.ConnConfig{
 			Host:     srcHost,
@@ -39,6 +42,12 @@ var pubsubCmd = &cobra.Command{
 			Pass:     "q1w2e3r4"}
 
 		ctx := context.Background()
+		if detach {
+			if err := pglogical.Detach(ctx, dest); err != nil {
+				log.Fatal(err)
+			}
+			return
+		}
 		if err := pgcopy.CopySchema(ctx, src, dest); err != nil {
 			log.Fatal(err)
 		}

@@ -34,12 +34,11 @@ func CopySequences(ctx context.Context, src, dest postgres.ConnConfig, slack int
 			return err
 		}
 
-		tag, err := dest_db.Exec(ctx, fmt.Sprintf("SELECT setval ('%s.%s', %d)",
+		_, err := dest_db.Exec(ctx, fmt.Sprintf("SELECT setval ('%s.%s', %d)",
 			schema, sequence, lastval+slack))
 		if err != nil {
 			return err
 		}
-		fmt.Println(tag)
 	}
 	// Check for errors from iterating over rows.
 	err = rows.Err()

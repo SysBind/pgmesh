@@ -12,7 +12,6 @@ var (
 	srcDB    string
 	destHost string
 	destDB   string
-	slack    int // number to add to all copied sequence values
 )
 
 var rootCmd = &cobra.Command{
