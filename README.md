@@ -41,3 +41,13 @@ Ref: https://www.2ndquadrant.com/en/blog/upgrading-to-postgresql-11-with-logical
   (Moodle: change value in mdl_config)
 
 
+The test runs few docker containers:
+- postgres10 - to upgrade from
+- postgres13 - to upgrade to
+- moodle - the application
+- pgmesh - to establish / teardown the logical replication
+           and copy sequence values
+
+_NOTE:_: If you test it on your postgres installation,
+         Dont use the same cluster as source and destination,
+		 It will get stuck (see: https://stackoverflow.com/questions/59492957/can-i-have-a-logical-replication-between-2-databases-in-the-same-postgres-server)
