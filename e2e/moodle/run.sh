@@ -77,9 +77,10 @@ $DOCKER_RUN --name pgmesh-test-pgmesh2 pgmesh pubsub --detach $PGMESH_ARGS || fa
 $DOCKER_RUN --name pgmesh-test-pgmesh3 pgmesh copyseq $PGMESH_ARGS || fail "failed running pgmesh copyseq"
 
 # configure moodle to use new postgres
-docker cp confignew.php pgmesh-test-moodle:/var/www/config.php
+docker cp confignew.php pgmesh-test-moodle:/var/moodle/config.php
 
 # Take Moodle out of maintenance mode (in new postgres)
 $DOCKER_EXC pgmesh-test-pg${TO_VERSION} psql  -U postgres moodle -c "UPDATE mdl_config SET value='0' WHERE name='maintenance_enabled'"
+$DOCKER_EXC pgmesh-test-moodle php admin/cli/purge_caches.php
 
 stdout "moodle migrated to ${TO_VERSION}"
