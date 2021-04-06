@@ -10,8 +10,12 @@ import (
 var (
 	srcHost  string
 	srcDB    string
+	srcUser  string
+	srcPass  string
 	destHost string
 	destDB   string
+	destUser string
+	destPass string
 )
 
 var rootCmd = &cobra.Command{

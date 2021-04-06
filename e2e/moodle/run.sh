@@ -18,6 +18,7 @@ DOCKER_RUN="docker run --network=pgmesh-test"
 DOCKER_EXC="docker exec"
 PG_ENV=" -e POSTGRES_PASSWORD=q1w2e3r4 -e POSTGRES_DB=moodle"
 PG_CLIENT_ENV="-e PGHOST=pgmesh-test-pg${FROM_VERSION} -e PGUSER=postgres -e PGPASSWORD=q1w2e3r4 -e PGDATABASE=moodle -e PGNEWHOST=pgmesh-test-pg${TO_VERSION}"
+PGMESH_ARGS="--source-host=pgmesh-test-pg${FROM_VERSION}  --source-database=moodle --source-pass=q1w2e3r4 --dest-host=pgmesh-test-pg${TO_VERSION} --dest-database=moodle  --dest-pass=q1w2e3r4"
 
 # Postgres (prev version)
 stdout "running postgres $FROM_VERSION"
@@ -58,7 +59,7 @@ while ! docker logs pgmesh-test-pg${TO_VERSION} | grep "database system is ready
 done
 
 # Run pgmesh to establish logical replication from old to new Postgres
-$DOCKER_RUN --name pgmesh-test-pgmesh pgmesh pubsub --source-host=pgmesh-test-pg${FROM_VERSION} --dest-host=pgmesh-test-pg${TO_VERSION} --source-database=moodle --dest-database=moodle || fail "failed running pgmesh pubsub"
+$DOCKER_RUN --name pgmesh-test-pgmesh pgmesh pubsub $PGMESH_ARGS || fail "failed running pgmesh pubsub"
 
 
 # Logical Replication Established - Generate Some Traffic
@@ -70,15 +71,15 @@ $DOCKER_EXC pgmesh-test-moodle php admin/tool/generator/cli/maketestsite.php --b
 $DOCKER_EXC pgmesh-test-moodle psql -c "UPDATE mdl_config SET value='1' WHERE name='maintenance_enabled'"
 
 # Run pgmesh --detach to tear down binary replication
-$DOCKER_RUN --name pgmesh-test-pgmesh2 pgmesh pubsub --detach --source-host=pgmesh-test-pg${FROM_VERSION} --dest-host=pgmesh-test-pg${TO_VERSION} --source-database=moodle --dest-database=moodle || fail "failed running pgmesh pubsub --detach"
+$DOCKER_RUN --name pgmesh-test-pgmesh2 pgmesh pubsub --detach $PGMESH_ARGS || fail "failed running pgmesh pubsub --detach"
 
 # Run pgmesh to copy over current sequence values
-$DOCKER_RUN --name pgmesh-test-pgmesh3 pgmesh copyseq --source-host=pgmesh-test-pg${FROM_VERSION} --dest-host=pgmesh-test-pg${TO_VERSION} --source-database=moodle --dest-database=moodle || fail "failed running pgmesh copyseq"
+$DOCKER_RUN --name pgmesh-test-pgmesh3 pgmesh copyseq $PGMESH_ARGS || fail "failed running pgmesh copyseq"
 
 # configure moodle to use new postgres
 docker cp confignew.php pgmesh-test-moodle:/var/www/config.php
 
-# Take Moodle out of maintenance mode
-$DOCKER_EXC pgmesh-test-pg13 psql  -U postgres moodle -c "UPDATE mdl_config SET value='0' WHERE name='maintenance_enabled'"
+# Take Moodle out of maintenance mode (in new postgres)
+$DOCKER_EXC pgmesh-test-pg${TO_VERSION} psql  -U postgres moodle -c "UPDATE mdl_config SET value='0' WHERE name='maintenance_enabled'"
 
 stdout "moodle migrated to ${TO_VERSION}"

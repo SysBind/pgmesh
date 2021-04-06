@@ -17,10 +17,14 @@ func init() {
 	copyseqCmd.MarkFlagRequired("source-host")
 	copyseqCmd.Flags().StringVarP(&srcDB, "source-database", "", "", "Source database name (required)")
 	copyseqCmd.MarkFlagRequired("source-database")
+	copyseqCmd.Flags().StringVarP(&srcUser, "source-user", "", "postgres", "Source database user (required)")
+	copyseqCmd.Flags().StringVarP(&srcPass, "source-pass", "", "", "Source database password")
 	copyseqCmd.Flags().StringVarP(&destHost, "dest-host", "", "", "Destination database host (required)")
 	copyseqCmd.MarkFlagRequired("dest-host")
 	copyseqCmd.Flags().StringVarP(&destDB, "dest-database", "", "", "Destination database name (required)")
 	copyseqCmd.MarkFlagRequired("dest-database")
+	copyseqCmd.Flags().StringVarP(&destUser, "dest-user", "", "postgres", "Destination database user")
+	copyseqCmd.Flags().StringVarP(&destPass, "dest-pass", "", "", "Destination database password")
 	copyseqCmd.Flags().IntVarP(&slack, "slack", "", 0, "a number to add to each sequence value copied (to avoid conflict if there are still potential, non-critical writes to source db, like in maintnence mode of some apps)")
 	rootCmd.AddCommand(copyseqCmd)
 }
@@ -32,14 +36,14 @@ var copyseqCmd = &cobra.Command{
 		src := postgres.ConnConfig{
 			Host:     srcHost,
 			Database: srcDB,
-			User:     "postgres",
-			Pass:     "q1w2e3r4"}
+			User:     srcUser,
+			Pass:     srcPass}
 
 		dest := postgres.ConnConfig{
 			Host:     destHost,
 			Database: destDB,
-			User:     "postgres",
-			Pass:     "q1w2e3r4"}
+			User:     destUser,
+			Pass:     destPass}
 
 		ctx := context.Background()
 

@@ -17,11 +17,16 @@ func init() {
 	pubsubCmd.MarkFlagRequired("source-host")
 	pubsubCmd.Flags().StringVarP(&srcDB, "source-database", "", "", "Source database name (required)")
 	pubsubCmd.MarkFlagRequired("source-database")
+	pubsubCmd.Flags().StringVarP(&srcUser, "source-user", "", "postgres", "Source database user")
+	pubsubCmd.Flags().StringVarP(&srcPass, "source-pass", "", "", "Source database password")
 	pubsubCmd.Flags().StringVarP(&destHost, "dest-host", "", "", "Destination database host (required)")
 	pubsubCmd.MarkFlagRequired("dest-host")
 	pubsubCmd.Flags().StringVarP(&destDB, "dest-database", "", "", "Destination database name (required)")
 	pubsubCmd.MarkFlagRequired("dest-database")
 	pubsubCmd.Flags().BoolVarP(&detach, "detach", "", false, "Detach previously etstablished logical replication")
+	pubsubCmd.Flags().StringVarP(&destUser, "dest-user", "", "postgres", "Destination database user")
+	pubsubCmd.Flags().StringVarP(&destPass, "dest-pass", "", "", "Destination database password")
+
 	rootCmd.AddCommand(pubsubCmd)
 }
 
@@ -32,14 +37,14 @@ var pubsubCmd = &cobra.Command{
 		src := postgres.ConnConfig{
 			Host:     srcHost,
 			Database: srcDB,
-			User:     "postgres",
-			Pass:     "q1w2e3r4"}
+			User:     srcUser,
+			Pass:     srcPass}
 
 		dest := postgres.ConnConfig{
 			Host:     destHost,
 			Database: destDB,
-			User:     "postgres",
-			Pass:     "q1w2e3r4"}
+			User:     destUser,
+			Pass:     destPass}
 
 		ctx := context.Background()
 		if detach {
